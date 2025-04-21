@@ -24,6 +24,23 @@
         .dashboard-card:hover {
             transform: translateY(-2px);
         }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 600px;
+        }
     </style>
 </head>
 <body>
@@ -31,31 +48,31 @@
         <div class="flex items-center justify-between mb-8">
             <h1 class="text-3xl font-bold text-gray-800">My Job Application Tracker</h1>
             <div class="space-x-4">
-                <button class="bg-pink-400 hover:bg-pink-500 text-white px-6 py-2 rounded-lg">+ Add New Application</button>
-                <button class="border border-pink-400 text-pink-400 hover:bg-pink-50 px-6 py-2 rounded-lg">Export Data</button>
+                <button onclick="openModal()" class="bg-pink-400 hover:bg-pink-500 text-white px-6 py-2 rounded-lg">+ Add New Application</button>
+                <button onclick="exportData()" class="border border-pink-400 text-pink-400 hover:bg-pink-50 px-6 py-2 rounded-lg">Export Data</button>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
             <div class="dashboard-card p-6">
                 <h3 class="text-gray-500 mb-2">Total Applications</h3>
-                <p class="text-4xl font-bold text-gray-800">0</p>
+                <p id="totalCount" class="text-4xl font-bold text-gray-800">0</p>
             </div>
             <div class="dashboard-card p-6">
                 <h3 class="text-gray-500 mb-2">Active</h3>
-                <p class="text-4xl font-bold text-gray-800">0</p>
+                <p id="activeCount" class="text-4xl font-bold text-gray-800">0</p>
             </div>
             <div class="dashboard-card p-6">
                 <h3 class="text-gray-500 mb-2">Interviews</h3>
-                <p class="text-4xl font-bold text-gray-800">0</p>
+                <p id="interviewCount" class="text-4xl font-bold text-gray-800">0</p>
             </div>
             <div class="dashboard-card p-6">
                 <h3 class="text-gray-500 mb-2">Offers</h3>
-                <p class="text-4xl font-bold text-gray-800">0</p>
+                <p id="offerCount" class="text-4xl font-bold text-gray-800">0</p>
             </div>
             <div class="dashboard-card p-6">
                 <h3 class="text-gray-500 mb-2">Rejected</h3>
-                <p class="text-4xl font-bold text-gray-800">0</p>
+                <p id="rejectedCount" class="text-4xl font-bold text-gray-800">0</p>
             </div>
         </div>
 
@@ -67,52 +84,267 @@
             <div class="dashboard-card p-6">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-xl font-semibold">Recent Applications</h2>
-                    <input type="text" placeholder="Search applications..." class="px-4 py-2 border rounded-lg">
+                    <input type="text" onkeyup="filterApplications()" id="searchInput" placeholder="Search applications..." class="px-4 py-2 border rounded-lg">
                 </div>
-                <table class="w-full">
-                    <thead>
-                        <tr class="text-left border-b">
-                            <th class="pb-3">Company</th>
-                            <th class="pb-3">Position</th>
-                            <th class="pb-3">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- Table rows will be dynamically added here -->
-                    </tbody>
-                </table>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="text-left border-b">
+                                <th class="pb-3">Company</th>
+                                <th class="pb-3">Position</th>
+                                <th class="pb-3">Status</th>
+                                <th class="pb-3">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="applicationsTable">
+                            <!-- Table rows will be dynamically added here -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Add Application Modal -->
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-2xl font-bold mb-4">Add New Application</h2>
+            <form id="applicationForm" onsubmit="addApplication(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="company">
+                        Company
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                           id="company" type="text" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="position">
+                        Position
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                           id="position" type="text" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="status">
+                        Status
+                    </label>
+                    <select class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                            id="status" required>
+                        <option value="Active">Active</option>
+                        <option value="Interview">Interview</option>
+                        <option value="Offer">Offer</option>
+                        <option value="Rejected">Rejected</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" for="dateApplied">
+                        Date Applied
+                    </label>
+                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                           id="dateApplied" type="date" required>
+                </div>
+                <div class="flex items-center justify-end">
+                    <button type="button" onclick="closeModal()" class="mr-4 text-gray-500 hover:text-gray-700">Cancel</button>
+                    <button type="submit" class="bg-pink-400 hover:bg-pink-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                        Add Application
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-        // Sample chart setup
-        const ctx = document.getElementById('responseChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-                datasets: [{
-                    label: 'Applications',
-                    data: [0, 0, 0, 0, 0],
-                    borderColor: '#ff8dc7',
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
+        let applications = JSON.parse(localStorage.getItem('applications')) || [];
+        let chart;
+
+        function initializeChart() {
+            const ctx = document.getElementById('responseChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: getLastSixMonths(),
+                    datasets: [{
+                        label: 'Applications',
+                        data: getMonthlyApplicationCounts(),
+                        borderColor: '#ff8dc7',
+                        tension: 0.4
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
                     }
                 }
+            });
+        }
+
+        function getLastSixMonths() {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const today = new Date();
+            const labels = [];
+            for (let i = 5; i >= 0; i--) {
+                const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+                labels.push(months[d.getMonth()]);
             }
-        });
+            return labels;
+        }
+
+        function getMonthlyApplicationCounts() {
+            const counts = new Array(6).fill(0);
+            const today = new Date();
+            applications.forEach(app => {
+                const appDate = new Date(app.dateApplied);
+                const monthDiff = (today.getMonth() - appDate.getMonth()) + 
+                                (today.getFullYear() - appDate.getFullYear()) * 12;
+                if (monthDiff >= 0 && monthDiff < 6) {
+                    counts[5 - monthDiff]++;
+                }
+            });
+            return counts;
+        }
+
+        function updateChart() {
+            chart.data.datasets[0].data = getMonthlyApplicationCounts();
+            chart.update();
+        }
+
+        function updateStats() {
+            document.getElementById('totalCount').textContent = applications.length;
+            document.getElementById('activeCount').textContent = 
+                applications.filter(app => app.status === 'Active').length;
+            document.getElementById('interviewCount').textContent = 
+                applications.filter(app => app.status === 'Interview').length;
+            document.getElementById('offerCount').textContent = 
+                applications.filter(app => app.status === 'Offer').length;
+            document.getElementById('rejectedCount').textContent = 
+                applications.filter(app => app.status === 'Rejected').length;
+        }
+
+        function updateTable() {
+            const tbody = document.getElementById('applicationsTable');
+            tbody.innerHTML = '';
+            applications.sort((a, b) => new Date(b.dateApplied) - new Date(a.dateApplied))
+                        .forEach((app, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="py-2">${app.company}</td>
+                    <td class="py-2">${app.position}</td>
+                    <td class="py-2">
+                        <span class="px-2 py-1 rounded-full text-sm ${getStatusColor(app.status)}">
+                            ${app.status}
+                        </span>
+                    </td>
+                    <td class="py-2">
+                        <button onclick="deleteApplication(${index})" class="text-red-500 hover:text-red-700">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function getStatusColor(status) {
+            const colors = {
+                'Active': 'bg-blue-100 text-blue-800',
+                'Interview': 'bg-yellow-100 text-yellow-800',
+                'Offer': 'bg-green-100 text-green-800',
+                'Rejected': 'bg-red-100 text-red-800'
+            };
+            return colors[status] || 'bg-gray-100 text-gray-800';
+        }
+
+        function openModal() {
+            document.getElementById('addModal').style.display = 'block';
+            document.getElementById('dateApplied').valueAsDate = new Date();
+        }
+
+        function closeModal() {
+            document.getElementById('addModal').style.display = 'none';
+            document.getElementById('applicationForm').reset();
+        }
+
+        function addApplication(event) {
+            event.preventDefault();
+            const newApp = {
+                company: document.getElementById('company').value,
+                position: document.getElementById('position').value,
+                status: document.getElementById('status').value,
+                dateApplied: document.getElementById('dateApplied').value
+            };
+            applications.push(newApp);
+            localStorage.setItem('applications', JSON.stringify(applications));
+            updateStats();
+            updateChart();
+            updateTable();
+            closeModal();
+        }
+
+        function deleteApplication(index) {
+            if (confirm('Are you sure you want to delete this application?')) {
+                applications.splice(index, 1);
+                localStorage.setItem('applications', JSON.stringify(applications));
+                updateStats();
+                updateChart();
+                updateTable();
+            }
+        }
+
+        function filterApplications() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const filteredApps = applications.filter(app => 
+                app.company.toLowerCase().includes(searchText) ||
+                app.position.toLowerCase().includes(searchText) ||
+                app.status.toLowerCase().includes(searchText)
+            );
+            const tbody = document.getElementById('applicationsTable');
+            tbody.innerHTML = '';
+            filteredApps.forEach((app, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="py-2">${app.company}</td>
+                    <td class="py-2">${app.position}</td>
+                    <td class="py-2">
+                        <span class="px-2 py-1 rounded-full text-sm ${getStatusColor(app.status)}">
+                            ${app.status}
+                        </span>
+                    </td>
+                    <td class="py-2">
+                        <button onclick="deleteApplication(${index})" class="text-red-500 hover:text-red-700">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function exportData() {
+            const csvContent = "data:text/csv;charset=utf-8," + 
+                "Company,Position,Status,Date Applied\n" +
+                applications.map(app => 
+                    `${app.company},${app.position},${app.status},${app.dateApplied}`
+                ).join("\n");
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "job_applications.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Initialize the dashboard
+        initializeChart();
+        updateStats();
+        updateTable();
     </script>
 </body>
 </html>
