@@ -3,920 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cute Job Application Tracker</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <title>Job Application Tracker</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     <style>
         :root {
-            --primary: #f8beeb;
-            --primary-dark: #e487d1;
-            --secondary: #ffd6f1;
-            --light: #fff5fc;
-            --dark: #583d54;
-            --accent: #c490b4;
-            --success: #b5ead7;
-            --warning: #ffdac1;
-            --danger: #ffb7b2;
+            --primary-pink: #ffd6eb;
+            --dark-pink: #ffb6d9;
         }
-        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: var(--light);
-            margin: 0;
-            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: #fff5f9;
         }
-        
-        header {
-            background-color: var(--primary);
-            color: var(--dark);
-            padding: 1rem;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        
-        h1 {
-            margin: 0;
-            font-size: 1.8rem;
-        }
-        
-        h1 i {
-            margin-right: 10px;
-        }
-        
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .dashboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .stats {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .stat-card {
-            background-color: white;
+        .dashboard-card {
+            background: white;
             border-radius: 15px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
-            padding: 15px;
-            min-width: 120px;
-            border: 2px solid var(--secondary);
-            transition: transform 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
         }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .stat-value {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin: 5px 0;
-            color: var(--dark);
-        }
-        
-        .stat-label {
-            color: var(--accent);
-            font-size: 0.85rem;
-            font-weight: 500;
-        }
-        
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        button, input, select {
-            padding: 8px 15px;
-            border-radius: 25px;
-            border: 1px solid #ddd;
-            font-size: 0.9rem;
-        }
-        
-        button {
-            background-color: var(--primary);
-            color: var(--dark);
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        button i {
-            margin-right: 5px;
-        }
-        
-        button:hover {
-            background-color: var(--primary-dark);
+        .dashboard-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        
-        .modal-content {
-            background-color: white;
-            padding: 30px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 600px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            border: 3px solid var(--primary);
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .modal-header h2 {
-            margin: 0;
-            color: var(--dark);
-        }
-        
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--dark);
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: var(--dark);
-        }
-        
-        input, select, textarea {
-            width: 100%;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-family: inherit;
-            transition: border 0.3s;
-        }
-        
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px var(--secondary);
-        }
-        
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-        
-        .form-row {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .form-col {
-            flex: 1;
-        }
-        
-        .form-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .table-container {
-            background-color: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
-            overflow: hidden;
-            margin-top: 20px;
-        }
-        
-        .table-scroll {
-            overflow-x: auto;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th, td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        th {
-            background-color: var(--primary);
-            color: var(--dark);
-            position: sticky;
-            top: 0;
-            font-weight: 600;
-        }
-        
-        tr:hover {
-            background-color: var(--light);
-        }
-        
-        .badge {
-            padding: 5px 15px;
-            border-radius: 25px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-align: center;
-            display: inline-block;
-        }
-        
-        .badge-applied {
-            background-color: var(--warning);
-            color: #333;
-        }
-        
-        .badge-interview {
-            background-color: var(--primary);
-            color: var(--dark);
-        }
-        
-        .badge-offer {
-            background-color: var(--success);
-            color: #333;
-        }
-        
-        .badge-rejected {
-            background-color: var(--danger);
-            color: #333;
-        }
-        
-        .badge-followup {
-            background-color: var(--accent);
-            color: white;
-        }
-        
-        .badge-archived {
-            background-color: #d3d3d3;
-            color: #333;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 5px;
-        }
-        
-        .btn-icon {
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            padding: 0;
-        }
-        
-        .btn-edit {
-            background-color: var(--warning);
-            color: #333;
-        }
-        
-        .btn-delete {
-            background-color: var(--danger);
-            color: #333;
-        }
-        
-        .btn-archive {
-            background-color: #d3d3d3;
-            color: #333;
-        }
-        
-        .btn-view {
-            background-color: var(--accent);
-            color: white;
-        }
-        
-        .filters {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            background-color: white;
-            padding: 15px;
-            border-radius: 15px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        #searchInput {
-            flex-grow: 1;
-            min-width: 200px;
-            border-radius: 25px;
-            padding-left: 40px;
-            position: relative;
-        }
-        
-        .search-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #aaa;
-            z-index: 1;
-            pointer-events: none;
-        }
-        
-        .search-container {
-            position: relative;
-            flex-grow: 1;
-            min-width: 200px;
-        }
-        
-        .tabs {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-            font-weight: 600;
-            color: var(--accent);
-        }
-        
-        .tab.active {
-            border-bottom-color: var(--primary);
-            color: var(--dark);
-        }
-        
-        .contact-info {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .contact-info a {
-            text-decoration: none;
-            color: var(--accent);
-        }
-        
-        .contact-info a:hover {
-            text-decoration: underline;
-        }
-        
-        .job-link a {
-            color: var(--accent);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .job-link a:hover {
-            text-decoration: underline;
-        }
-        
-        /* View details modal */
-        .detail-item {
-            margin-bottom: 15px;
-        }
-        
-        .detail-label {
-            font-weight: 600;
-            color: var(--dark);
-            margin-bottom: 5px;
-        }
-        
-        .detail-value {
-            padding: 10px;
-            background-color: var(--light);
-            border-radius: 8px;
-            line-height: 1.5;
-        }
-        
-        .notes-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-        }
-        
-        .contact-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-        }
-        
-        .detail-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
-        }
-        
-        /* Empty state */
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: var(--accent);
-        }
-        
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            opacity: 0.4;
-        }
-        
-        .empty-state h3 {
-            margin-top: 0;
-            color: var(--dark);
-        }
-
-        /* Loader */
-        .loader {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            border: 3px solid rgba(0,0,0,.1);
-            border-radius: 50%;
-            border-top-color: var(--primary);
-            animation: spin 1s ease-in-out infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .dashboard-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .stats {
-                width: 100%;
-                justify-content: space-between;
-                margin-bottom: 15px;
-            }
-            
-            .controls {
-                width: 100%;
-            }
-            
-            .filters {
-                flex-direction: column;
-            }
-            
-            .form-row {
-                flex-direction: column;
-                gap: 0;
-            }
-            
-            th, td {
-                padding: 10px 8px;
-            }
-            
-            .hide-mobile {
-                display: none;
-            }
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1><i class="fas fa-briefcase"></i> My Job Application Tracker</h1>
-    </header>
-    
-    <div class="container">
-        <div class="dashboard-header">
-            <div class="stats">
-                <div class="stat-card">
-                    <div class="stat-label">Total Applications</div>
-                    <div class="stat-value" id="totalApplications">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Active</div>
-                    <div class="stat-value" id="activeApplications">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Interviews</div>
-                    <div class="stat-value" id="interviewCount">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Offers</div>
-                    <div class="stat-value" id="offerCount">0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Rejected</div>
-                    <div class="stat-value" id="rejectionCount">0</div>
-                </div>
-            </div>
-            <div class="controls">
-                <button id="addApplicationBtn"><i class="fas fa-plus"></i> Add New Application</button>
-                <button id="exportDataBtn"><i class="fas fa-download"></i> Export Data</button>
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">My Job Application Tracker</h1>
+            <div class="space-x-4">
+                <button class="bg-pink-400 hover:bg-pink-500 text-white px-6 py-2 rounded-lg">+ Add New Application</button>
+                <button class="border border-pink-400 text-pink-400 hover:bg-pink-50 px-6 py-2 rounded-lg">Export Data</button>
             </div>
         </div>
-        
-        <div class="tabs">
-            <div class="tab active" data-tab="active">Active Applications</div>
-            <div class="tab" data-tab="archived">Archived Applications</div>
-        </div>
-        
-        <div class="filters">
-            <div class="search-container">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="searchInput" placeholder="Search by company, position, location...">
+
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+            <div class="dashboard-card p-6">
+                <h3 class="text-gray-500 mb-2">Total Applications</h3>
+                <p class="text-4xl font-bold text-gray-800">0</p>
             </div>
-            <select id="statusFilter">
-                <option value="all">All Statuses</option>
-                <option value="Applied">Applied</option>
-                <option value="Interview">Interview</option>
-                <option value="Offer">Offer</option>
-                <option value="Rejected">Rejected</option>
-                <option value="Follow-up">Follow-up</option>
-                <option value="Archived">Archived</option>
-            </select>
-            <button id="clearFiltersBtn"><i class="fas fa-times"></i> Clear</button>
+            <div class="dashboard-card p-6">
+                <h3 class="text-gray-500 mb-2">Active</h3>
+                <p class="text-4xl font-bold text-gray-800">0</p>
+            </div>
+            <div class="dashboard-card p-6">
+                <h3 class="text-gray-500 mb-2">Interviews</h3>
+                <p class="text-4xl font-bold text-gray-800">0</p>
+            </div>
+            <div class="dashboard-card p-6">
+                <h3 class="text-gray-500 mb-2">Offers</h3>
+                <p class="text-4xl font-bold text-gray-800">0</p>
+            </div>
+            <div class="dashboard-card p-6">
+                <h3 class="text-gray-500 mb-2">Rejected</h3>
+                <p class="text-4xl font-bold text-gray-800">0</p>
+            </div>
         </div>
-        
-        <div class="table-container">
-            <div class="table-scroll">
-                <table id="applicationsTable">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="dashboard-card p-6">
+                <h2 class="text-xl font-semibold mb-4">Application Response Timeline</h2>
+                <canvas id="responseChart"></canvas>
+            </div>
+            <div class="dashboard-card p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-semibold">Recent Applications</h2>
+                    <input type="text" placeholder="Search applications..." class="px-4 py-2 border rounded-lg">
+                </div>
+                <table class="w-full">
                     <thead>
-                        <tr>
-                            <th>Company</th>
-                            <th>Position</th>
-                            <th>Date Applied</th>
-                            <th>Status</th>
-                            <th>Last Contact</th>
-                            <th>Job Link</th>
-                            <th>Contact Info</th>
-                            <th>Actions</th>
+                        <tr class="text-left border-b">
+                            <th class="pb-3">Company</th>
+                            <th class="pb-3">Position</th>
+                            <th class="pb-3">Status</th>
                         </tr>
                     </thead>
-                    <tbody id="applicationsBody">
-                        <!-- Job applications will be displayed here -->
+                    <tbody>
+                        <!-- Table rows will be dynamically added here -->
                     </tbody>
                 </table>
-                
-                <div id="emptyState" class="empty-state" style="display: none;">
-                    <i class="fas fa-folder-open"></i>
-                    <h3>No applications yet!</h3>
-                    <p>Click the "Add New Application" button to start tracking your job search.</p>
-                </div>
             </div>
         </div>
     </div>
-    
-    <!-- Add/Edit Application Modal -->
-    <div class="modal" id="applicationModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Add Application</h2>
-                <button class="close-btn" id="closeModalBtn">&times;</button>
-            </div>
-            <form id="applicationForm">
-                <input type="hidden" id="applicationId">
-                <input type="hidden" id="isArchived" value="false">
-                
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="company">Company</label>
-                            <input type="text" id="company" required>
-                        </div>
-                    </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="position">Position</label>
-                            <input type="text" id="position" required>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="location">Location</label>
-                            <input type="text" id="location">
-                        </div>
-                    </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="dateApplied">Date Applied</label>
-                            <input type="date" id="dateApplied" required>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="jobLink">Job Posting URL</label>
-                    <input type="url" id="jobLink" placeholder="https://...">
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="source">Application Source</label>
-                            <input type="text" id="source" placeholder="LinkedIn, Indeed, Company Website, etc.">
-                        </div>
-                    </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="status">Status</label>
-                            <select id="status" required>
-                                <option value="Applied">Applied</option>
-                                <option value="Interview">Interview</option>
-                                <option value="Offer">Offer</option>
-                                <option value="Rejected">Rejected</option>
-                                <option value="Follow-up">Follow-up</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                
-                <h3>Contact Information</h3>
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="contactName">Contact Name</label>
-                            <input type="text" id="contactName">
-                        </div>
-                    </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="contactTitle">Contact Title</label>
-                            <input type="text" id="contactTitle" placeholder="Hiring Manager, Recruiter, etc.">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="contactEmail">Contact Email</label>
-                            <input type="email" id="contactEmail">
-                        </div>
-                    </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="contactPhone">Contact Phone</label>
-                            <input type="tel" id="contactPhone">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-row">
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="lastContactDate">Last Contact Date</label>
-                            <input type="date" id="lastContactDate">
-                        </div>
-                    </div>
-                    <div class="form-col">
-                        <div class="form-group">
-                            <label for="nextFollowUp">Next Follow-Up Date</label>
-                            <input type="date" id="nextFollowUp">
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="notes">Notes</label>
-                    <textarea id="notes" placeholder="Interview details, questions to ask, follow-up tasks..."></textarea>
-                </div>
-                
-                <div class="form-actions">
-                    <button type="button" id="cancelBtn">Cancel</button>
-                    <button type="submit" id="saveBtn">Save</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    
-    <!-- View Application Details Modal -->
-    <div class="modal" id="viewApplicationModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="viewModalTitle">Application Details</h2>
-                <button class="close-btn" id="closeViewModalBtn">&times;</button>
-            </div>
-            
-            <div id="applicationDetails">
-                <div class="detail-grid">
-                    <div class="detail-item">
-                        <div class="detail-label">Company</div>
-                        <div class="detail-value" id="viewCompany"></div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Position</div>
-                        <div class="detail-value" id="viewPosition"></div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Location</div>
-                        <div class="detail-value" id="viewLocation"></div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Date Applied</div>
-                        <div class="detail-value" id="viewDateApplied"></div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Status</div>
-                        <div class="detail-value" id="viewStatus"></div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Source</div>
-                        <div class="detail-value" id="viewSource"></div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Job Posting</div>
-                        <div class="detail-value" id="viewJobLink"></div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Last Contact</div>
-                        <div class="detail-value" id="viewLastContact"></div>
-                    </div>
-                </div>
-                
-                <div class="contact-section">
-                    <h3>Contact Information</h3>
-                    <div class="detail-grid">
-                        <div class="detail-item">
-                            <div class="detail-label">Name</div>
-                            <div class="detail-value" id="viewContactName"></div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Title</div>
-                            <div class="detail-value" id="viewContactTitle"></div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Email</div>
-                            <div class="detail-value" id="viewContactEmail"></div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Phone</div>
-                            <div class="detail-value" id="viewContactPhone"></div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="notes-section">
-                    <h3>Notes</h3>
-                    <div class="detail-item">
-                        <div class="detail-value" id="viewNotes"></div>
-                    </div>
-                </div>
-                
-                <div class="form-actions">
-                    <button id="editFromViewBtn"><i class="fas fa-edit"></i> Edit</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
+
     <script>
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', function() {
-            // Elements
-            const addApplicationBtn = document.getElementById('addApplicationBtn');
-            const exportDataBtn = document.getElementById('exportDataBtn');
-            const applicationModal = document.getElementById('applicationModal');
-            const viewApplicationModal = document.getElementById('viewApplicationModal');
-            const applicationForm = document.getElementById('applicationForm');
-            const cancelBtn = document.getElementById('cancelBtn');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            const closeViewModalBtn = document.getElementById('closeViewModalBtn');
-            const applicationsBody = document.getElementById('applicationsBody');
-            const searchInput = document.getElementById('searchInput');
-            const statusFilter = document.getElementById('statusFilter');
-            const clearFiltersBtn = document.getElementById('clearFiltersBtn');
-            const tabs = document.querySelectorAll('.tab');
-            const editFromViewBtn = document.getElementById('editFromViewBtn');
-            const emptyState = document.getElementById('emptyState');
-            
-            // Variables
-            let applications = JSON.parse(localStorage.getItem('jobApplications')) || [];
-            let currentTab = 'active';
-            
-            // Update dashboard stats
-            function updateStats() {
-                document.getElementById('totalApplications').textContent = applications.length;
-                document.getElementById('activeApplications').textContent = applications.filter(app => 
-                    (app.status === 'Applied' || app.status === 'Follow-up' || app.status === 'Interview') && 
-                    app.isArchived !== true
-                ).length;
-                document.getElementById('interviewCount').textContent = applications.filter(app => 
-                    app.status === 'Interview' && app.isArchived !== true
-                ).length;
-                document.getElementById('offerCount').textContent = applications.filter(app => 
-                    app.status === 'Offer' && app.isArchived !== true
-                ).length;
-                document.getElementById('rejectionCount').textContent = applications.filter(app => 
-                    app.status === 'Rejected' && app.isArchived !== true
-                ).length;
-            }
-            
-            // Render applications table
-            function renderApplications(apps = applications) {
-                // Filter based on current tab
-                apps = apps.filter(app => {
-                    if (currentTab === 'active') {
-                        return app.isArchived !== true;
-                    } else {
-                        return app.isArchived === true;
+        // Sample chart setup
+        const ctx = document.getElementById('responseChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+                datasets: [{
+                    label: 'Applications',
+                    data: [0, 0, 0, 0, 0],
+                    borderColor: '#ff8dc7',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
                     }
-                });
-                
-                // Show empty state if no applications
-                if (apps.length === 0) {
-                    document.getElementById('applicationsTable').style.display = 'none';
-                    emptyState.style.display = 'block';
-                } else {
-                    document.getElementById('applicationsTable').style.display = 'table';
-                    emptyState.style.display = 'none';
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
                 }
-                
-                applicationsBody.innerHTML = '';
-                
-                apps.forEach(app => {
-                    const row = document.createElement('tr');
-                    
-                    // Company
-                    const companyCell = document.createElement('td');
-                    companyCell.textContent = app.company;
-                    
-                    // Position
-                    const positionCell = document.createElement('td');
-                    positionCell.textContent = app.position;
-                    
-                    // Date Applied
-                    const dateAppliedCell = document.createElement('td');
-                    dateAppliedCell.textContent = formatDate(app.dateApplied);
-                    
-                    // Status
-                    const statusCell = document.createElement('td');
-                    const statusBadge = document.createElement('span');
-                    statusBadge.className = `badge badge-${app.status.toLowerCase()}`;
-                    statusBadge.textContent = app.status;
-                    statusCell.appendChild(statusBadge);
-                    
-                    // Last Contact
-                    const lastContactCell = document.createElement('td');
-                    lastContactCell.textContent = app.lastContactDate ? formatDate(app.lastContactDate) : 'N/A';
-                    
-                    // Job Link
-                    const jobLinkCell = document.createElement('td');
-                    jobLinkCell.className = 'job-link';
-                    if (app.jobLink) {
-                        const link = document.createElement('a');
-                        link.href = app.jobLink;
-                        link.target = '_blank';
-                        link.innerHTML = '<i class="fas fa-external-link-alt"></i> View';
-                        jobLinkCell.appendChild(link);
-                    } else {
-                        jobLinkCell.textContent = 'N/A';
-                    }
-                    
-                    // Contact Info
-                    const contactCell = document.createElement('td');
-                    contactCell.className = 'contact-info';
-                    if (app.contactEmail) {
-                        const emailLink = document.createElement('a');
-                        emailLink.href = `mailto:${app.contactEmail}`;
-                        emailLink.innerHTML = '<i class="fas fa-envelope"></i>';
-                        emailLink.title = app.
+            }
+        });
+    </script>
+</body>
+</html>
